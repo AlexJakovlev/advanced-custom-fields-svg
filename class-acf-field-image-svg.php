@@ -159,6 +159,7 @@ class acf_field_image_svg extends acf_field {
 		<?php endif; ?>
 	</div>
 </div>
+
 <?php
 		
 	}
@@ -453,8 +454,9 @@ class acf_field_image_svg extends acf_field {
 	*/
 	
 	function update_value( $value, $post_id, $field ) {
-		
-		return acf_get_field_type('file')->update_value( $value, $post_id, $field );
+		// var_dump(acf_get_field_type('file')->update_value( $value, $post_id, $field ));
+		// flush();
+		return  $value;
 		
 	}
 	
@@ -473,6 +475,8 @@ class acf_field_image_svg extends acf_field {
 	*/
 	
 	function validate_value( $valid, $value, $field, $input ){
+		$pos=strpos($value,':');
+		if ($pos) { $value = substr($value, 0,$pos);}
 		
 		return acf_get_field_type('file')->validate_value( $valid, $value, $field, $input );
 		

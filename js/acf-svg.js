@@ -207,42 +207,36 @@
 	return url.substr((~-url.lastIndexOf(".") >>> 0) + 2); // get extension from url
 }
 
-function create_html(tags,item,url){
-var outerHTML = '<div style="height:100%; width:100%;">';
-for (var tag of tags){
-	outerHTML +='<div style="height:20%; width:20%; display: block; float: left;"><svg src="'+url+'" style=" height:100%; width:100%;"><use xlink:href="'+url+'#'+tag.getAttribute('id')+'"  ></use></svg></div>';
+function create_html(tags,obj){
+	var elementHTML = '' ;
+	if ('media_loader' === obj.action)  { 
+	console.log(obj.action);
+
+		elementHTML = obj.img.parentNode;
+		elementHTML.setAttribute('style','transform: translate(0%,0%)')
+		console.log(obj);
 	}
-	outerHTML +='</div>'
+	var innerHTML = '<div style="height:100%; width:100%;">';
+	for (var tag of tags){
+		innerHTML +='<div style="height:20%; width:20%; display: block; float: left;"><svg src="'+obj.url+'" style=" height:100%; width:100%;"><use xlink:href="'+obj.url+'#'+tag.getAttribute('id')+'"  ></use></svg></div>';
+	}
+	innerHTML +='</div>'
 	// console.log(outerHTML);
-	item.outerHTML = outerHTML;
+	elementHTML.innerHTML = innerHTML;
 }
 
-function get_resours(item,url) {
-	// console.log('get_resours ');
+function handler_child(obj) {
+console.log('+++');
 	$.ajax({
 		type: 'GET',
-		url: url,
+		url: obj.url,
 		success: function (data){
 			var tags = data.getElementsByTagName("symbol");
 			if (0 < tags.length) {
-				create_html(tags,item,url)
+				create_html(tags,obj)
 			}
 		}
 	});
-}
-
-function handler_child(target) {
-	items = target.getElementsByTagName ('img');
-	for (let item of items ) {
-		src = item.getAttribute('src') 
-		var ext = get_ext(src);
-		if (  'svg' === ext ) {
-			// console.log(ext);
-			get_resours(item, src);
-			// var tags = data_svg.getElementsByTagName("symbol");
-			// console.log(tags.length);
-		}
-	}
 }
 
 function clearsiblings(element){
@@ -277,12 +271,43 @@ function create_innerHTML(inners, element,url){
 
 		// console.log(inner.getAttribute('id'));
 	}
-	HTMLcontext +="</div>"
+	HTMLcontext +="</div><style>.svg-button.select{ background-color: #5cff2973; }</style>"
 	$(HTMLcontext).insertAfter(element);
  // console.log(document.getElementsByClassName('buttons_svg'));
 
 
 }
+function eventadd()
+{
+	$('.svg-button').off();
+	$('.svg-button').click(function(e) {
+		var tmp = ($(e.currentTarget).attr('data-acf-name'));
+		var select = ($(e.currentTarget).attr('data-id'));
+		var value = document.getElementsByName(tmp)[0].getAttribute('value');
+		var str_index=value.indexOf(':');
+		if ( -1 === str_index) {
+			value = value+select;
+		} else {
+			value = value.substring(0,str_index)+select;
+		}
+		console.log(value);
+		document.getElementsByName(tmp)[0].setAttribute('value',value);
+					// tmp = 'input[name='+tmp+']';
+					// console.log(tmp);
+					// var data_svg =  document.getElementsByName(tmp);
+					// console.log(data_svg);
+					// if ('' === data_svg) $('[name="'+tmp+'"]').attr('data-svg',$('[name="'+tmp+'"]').attr('value'));
+					// console.log($('[name="'+tmp+'"]').attr('data-svg'));
+					// console.log($(e.currentTarget).attr('data-id'));
+
+					$(e.currentTarget).parent().children('.svg-button').removeClass("select");
+					$(e.currentTarget).addClass( "select" );
+					// $($('[name="'+tmp+'"]')).val($('[name="'+tmp+'"]').attr('data-svg')+$(e.currentTarget).attr('data-id'));
+					// console.log($('[name="'+tmp+'"]').attr('data-svg'));
+
+					// $(e.currentTarget).parent().children('input').val($(e.currentTarget).attr('data-id'));
+				})
+};
 
 function svg_work(element,url){
 	console.log('svg_work ',);
@@ -300,31 +325,42 @@ function svg_work(element,url){
 		}
 	});
 }
-	var callback = function (mutationsList) {
-		for (var mutation of mutationsList) {
-			if (mutation.type == 'childList') {
-				if (mutation.target.getAttribute('class')) {
 
-					if (mutation.target.getAttribute('class').includes('attachments')) {
-						console.log('A child node has been added or removed. -- ' + mutation.target.getAttribute('id'));
-						handler_child(mutation.target);
-						// observer.disconnect();
-
+var callback = function (mutationsList) 
+{
+	for (var mutation of mutationsList) 
+	{
+		if (mutation.type == 'childList') {
+			if (mutation.target.getAttribute('class')) {
+				if (mutation.target.getAttribute('class').includes('attachments')) {
+					var obj = {};
+					if ( 0 <  mutation.addedNodes.length) {
+						obj.action = 'media_loader';
+						obj.target = mutation.target;
+						obj.img = mutation.addedNodes[0].getElementsByTagName('img')[0];
+						obj.url = obj.img.getAttribute('src') 
+						if ( 'svg' === get_ext(obj.url)) {
+							// console.log(obj.img.currentSrc)
+							// console.log('A child node has been added or removed. -- ' + mutation.target.getAttribute('id'));
+							handler_child(obj);
+						}
 					}
 				}
 			}
-			else if (mutation.type == 'attributes') {
-				console.log('The ' + mutation.attributeName + ' attribute was modified.');
-				var element = mutationsList[0].target;
-				var old_ext = get_ext(mutationsList[0].oldValue);
-				var src = element.getAttribute('src');
-				var ext = get_ext(src);
-				if (ext === 'svg') svg_work(element, src);
-				if (old_ext === 'svg') clearsiblings(element);
-			}
+		}
+		else if (mutation.type == 'attributes') 
+		{
+			console.log('The ' + mutation.attributeName + ' attribute was modified.');
+			var element = mutationsList[0].target;
+			var old_ext = get_ext(mutationsList[0].oldValue);
+			var src = element.getAttribute('src');
+			var ext = get_ext(src);
+			if (ext === 'svg') svg_work(element, src);
+			if (old_ext === 'svg') clearsiblings(element);
 		}
 	}
-	var targetsNode = window.document;
+}
+var targetsNode = window.document;
 	// Options for the observer (which mutations to observe)
 	var config = { attributes: true, attributeOldValue: true, childList: true, subtree: true, 'attributeFilter': ['src'] };
 	// console.log(targetsNode+'--------');
@@ -333,16 +369,16 @@ function svg_work(element,url){
 	var observer = new MutationObserver(callback);
 	//Start observing the target node for configured mutations
 	// for(var targetNode of targetsNode) {
-	if (targetsNode != null) {
-		observer.observe(targetsNode, config);
+		if (targetsNode != null) {
+			observer.observe(targetsNode, config);
+		}
+
 	}
+	)(jQuery)
 
-}
-)(jQuery)
-
-window.onload = function (){
-	var html_temp = document.getElementById('tmpl-attachment');
-    var str_template = html_temp.text;
-	str_template =  str_template.replace("else if ( 'image' === data.type && data.sizes )", "else if ( 'image' === data.type )");
-    html_temp.innerHTML = str_template;
-}
+	window.onload = function (){
+		var html_temp = document.getElementById('tmpl-attachment');
+		var str_template = html_temp.text;
+		str_template =  str_template.replace("else if ( 'image' === data.type && data.sizes )", "else if ( 'image' === data.type )");
+		html_temp.innerHTML = str_template;
+	}
