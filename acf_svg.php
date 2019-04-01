@@ -35,13 +35,6 @@ class Acf_Svg
 }
 new Acf_Svg();
 
-function my_myme_types($mime_types){
-	// var_dump($mime_types);
-    $mime_types['svg'] = 'image/svg+xml'; // поддержка SVG
-    return $mime_types;
-}
-add_filter('upload_mimes', 'my_myme_types', 1, 1);
-
 $mimes='svg';
 function wp39550_disable_real_mime_check( $data, $file, $filename, $mimes ) {
 	$wp_filetype = wp_check_filetype( $filename, $mimes );

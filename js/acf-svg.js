@@ -271,7 +271,7 @@ function create_innerHTML(inners, element,url){
 
 		// console.log(inner.getAttribute('id'));
 	}
-	HTMLcontext +="</div><style>.svg-button.select{ background-color: #5cff2973; }</style>"
+	HTMLcontext +="</div>"
 	$(HTMLcontext).insertAfter(element);
  // console.log(document.getElementsByClassName('buttons_svg'));
 
@@ -344,6 +344,8 @@ var callback = function (mutationsList)
 							// console.log('A child node has been added or removed. -- ' + mutation.target.getAttribute('id'));
 							handler_child(obj);
 						}
+					} else if ( 0 < mutation.removedNodes.length ) {
+						console.log(mutation.removedNodes+' -- removed');
 					}
 				}
 			}
@@ -355,6 +357,7 @@ var callback = function (mutationsList)
 			var old_ext = get_ext(mutationsList[0].oldValue);
 			var src = element.getAttribute('src');
 			var ext = get_ext(src);
+			clearsiblings(element);
 			if (ext === 'svg') svg_work(element, src);
 			if (old_ext === 'svg') clearsiblings(element);
 		}
@@ -371,19 +374,20 @@ if (targetsNode != null) {
 	observer.observe(targetsNode, config);
 }
 (jQuery)(document).ready( function init_svg(){
+	eventadd();
 	console.log('initsvg');
-	var control_ext = document.querySelectorAll('[data-name="image"]');
-	for (var item of control_ext){
-		var src = item.getAttribute('src');
-		var ext = get_ext(src);
-		if (ext === 'svg'){
-			svg_work(item,src,ext);
-		}
+	// var control_ext = document.querySelectorAll('[data-name="image"]');
+	// for (var item of control_ext){
+	// 	var src = item.getAttribute('src');
+	// 	var ext = get_ext(src);
+	// 	if (ext === 'svg'){
+	// 		svg_work(item,src,ext);
+	// 	}
 
-		// if (item.nextElementSibling.className !== 'buttons_svg'){
-		// 	console.log('create innerhtml');
-		// }
-	}
+	// 	// if (item.nextElementSibling.className !== 'buttons_svg'){
+	// 	// 	console.log('create innerhtml');
+	// 	// }
+	// }
 })
 }
 )(jQuery)
