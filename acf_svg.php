@@ -57,7 +57,7 @@ add_filter( 'wp_check_filetype_and_ext', 'wp39550_disable_real_mime_check', 10, 
 function acf_svg(){
 
 	if( is_admin() ){
-		wp_enqueue_script( 'acf-svg', plugins_url( 'js/acf-svg.js', __FILE__ ), array('acf-input'), '1.1', false );
+		wp_enqueue_script( 'acf-svg', plugins_url( 'js/acf-svg.js', __FILE__ ), array('acf-input'), '1.1' );
 	}
 }
 

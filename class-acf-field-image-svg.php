@@ -10,12 +10,12 @@ class acf_field_image_svg extends acf_field {
 	*
 	*  This function will setup the field type data
 	*
-	*  @type	function
-	*  @date	5/03/2014
-	*  @since	5.0.0
+	*  @type    function
+	*  @date    5/03/2014
+	*  @since   5.0.0
 	*
-	*  @param	n/a
-	*  @return	n/a
+	*  @param   n/a
+	*  @return  n/a
 	*/
 	
 	function initialize() {
@@ -25,47 +25,47 @@ class acf_field_image_svg extends acf_field {
 		$this->label = __("Image_svg",'acf');
 		$this->category = 'content';
 		$this->defaults = array(
-			'return_format'	=> 'array',
-			'preview_size'	=> 'thumbnail',
-			'library'		=> 'all',
-			'min_width'		=> 0,
-			'min_height'	=> 0,
-			'min_size'		=> 0,
-			'max_width'		=> 0,
-			'max_height'	=> 0,
-			'max_size'		=> 0,
-			'mime_types'	=> ''
+			'return_format' => 'array',
+			'preview_size'  => 'thumbnail',
+			'library'       => 'all',
+			'min_width'     => 0,
+			'min_height'    => 0,
+			'min_size'      => 0,
+			'max_width'     => 0,
+			'max_height'    => 0,
+			'max_size'      => 0,
+			'mime_types'    => ''
 		);
 		
 		// filters
-		add_filter('get_media_item_args',				array($this, 'get_media_item_args'));
-		add_filter('wp_prepare_attachment_for_js',		array($this, 'wp_prepare_attachment_for_js'), 10, 3);
-    
-    }
-    
-    
-    /*
+		add_filter('get_media_item_args',               array($this, 'get_media_item_args'));
+		add_filter('wp_prepare_attachment_for_js',      array($this, 'wp_prepare_attachment_for_js'), 10, 3);
+	
+	}
+	
+	
+	/*
 	*  input_admin_enqueue_scripts
 	*
 	*  description
 	*
-	*  @type	function
-	*  @date	16/12/2015
-	*  @since	5.3.2
+	*  @type    function
+	*  @date    16/12/2015
+	*  @since   5.3.2
 	*
-	*  @param	$post_id (int)
-	*  @return	$post_id (int)
+	*  @param   $post_id (int)
+	*  @return  $post_id (int)
 	*/
 	
 	function input_admin_enqueue_scripts() {
 		
 		// localize
 		acf_localize_text(array(
-		   	'Select Image'	=> __('Select Image', 'acf'),
-			'Edit Image'	=> __('Edit Image', 'acf'),
-			'Update Image'	=> __('Update Image', 'acf'),
-			'All images'	=> __('All images', 'acf'),
-	   	));
+			'Select Image'  => __('Select Image', 'acf'),
+			'Edit Image'    => __('Edit Image', 'acf'),
+			'Update Image'  => __('Update Image', 'acf'),
+			'All images'    => __('All images', 'acf'),
+		));
 	}
 	
 	
@@ -74,11 +74,11 @@ class acf_field_image_svg extends acf_field {
 	*
 	*  Create the HTML interface for your field
 	*
-	*  @param	$field - an array holding all the field's data
+	*  @param   $field - an array holding all the field's data
 	*
-	*  @type	action
-	*  @since	3.6
-	*  @date	23/01/13
+	*  @type    action
+	*  @since   3.6
+	*  @date    23/01/13
 	*/
 	
 	function render_field( $field ) {
@@ -97,18 +97,22 @@ class acf_field_image_svg extends acf_field {
 		$url = '';
 		$alt = '';
 		$div = array(
-			'class'					=> 'acf-image-uploader',
-			'data-preview_size'		=> $field['preview_size'],
-			'data-library'			=> $field['library'],
-			'data-mime_types'		=> $field['mime_types'],
-			'data-uploader'			=> $uploader
+			'class'                 => 'acf-image-uploader',
+			'data-preview_size'     => $field['preview_size'],
+			'data-library'          => $field['library'],
+			'data-mime_types'       => $field['mime_types'],
+			'data-uploader'         => $uploader
 		);
-		
 		
 		// has value?
 		if( $field['value'] ) {
-			
+			$pos_delimuter = strpos($field['value'], ':');
 			// update vars
+			if ($pos_delimuter) {
+				$field['select'] = substr ($field['value'],$pos_delimuter);
+				$field['value'] = substr ($field['value'], 0, $pos_delimuter);
+			}
+
 			$url = wp_get_attachment_image_src($field['value'], $field['preview_size']);
 			$alt = get_post_meta($field['value'], '_wp_attachment_image_alt', true);
 			
@@ -123,17 +127,36 @@ class acf_field_image_svg extends acf_field {
 			}
 						
 		}
-		
-		
 		// get size of preview value
 		$size = acf_get_image_size($field['preview_size']);
-		
+		// $handle = fopen("/home/rasmus/file.txt", "r");
+		// http://176.36.128.154:50080/test/wp-content/uploads/2019/03/icon.svg
+		// $file_name_svg = explode('/',$url);
+		// $file_name_svg = array_pop($file_name_svg);
+
+		// var_dump(wp_upload_dir()['path'], explode('/',$url));
+		// $handle = file_get_contents(wp_upload_dir()['path'].'/'.$file_name_svg, "r");
+		// $symbols = explode('<symbol', $handle);
+		// $xml=simplexml_load_file(wp_upload_dir()['path'].'/'.$file_name_svg) or die("Error: Cannot create object");
+		// var_dump($symbols[0]);
 ?>
 <div <?php acf_esc_attr_e( $div ); ?>>
-	<?php acf_hidden_input(array( 'name' => $field['name'], 'value' => $field['value'] )); ?>
-	<div class="show-if-value image-wrap" <?php if( $size['width'] ): ?>style="<?php echo esc_attr('max-width: '.$size['width'].'px'); ?>"<?php endif; ?>>
+	<?php acf_hidden_input(array( 'name' => $field['name'], 'value' => $field['value'].$field['select'] )); ?>
+	<div class="show-if-value image-wrap" <?php if( $size['width'] ): ?>style="<?php echo esc_attr('max-width: '.$size['width'].'px'); ?>"<?php endif; 
+	// foreach ($symbols as $value) {
+	// 	var_dump($value);
+	// 	$pos_id_start= strpos($value, 'id=')+4;
+	// 	var_dump($pos_id_start.' id=');
+	// 	if ( false !== $pos_id_start) {
+	// 		$pos_id_stop = strpos($value, '"',$pos_id_start);
+	// 		var_dump(substr($value,$pos_id_start,$pos_id_stop-$pos_id_start));
+	// 	}
+	// }
+
+	?>>
+		<!-- <button class="svg-button" data-acf-name="acf[field_5c5971e234998][2][field_5c59740ca4d83]" type="button" data-id=":cabinet"><svg src="https://utec.ua/wp-content/uploads/2019/02/icon.svg" style="height:20px; width:20px;"><use xlink:href="https://utec.ua/wp-content/uploads/2019/02/icon.svg#:cabinet"></use></svg></button> -->
 		<img data-name="image" src="<?php echo esc_url($url); ?>" alt="<?php echo esc_attr($alt); ?>"/>
-		<div class="acf-actions -hover">
+		<div class="acf-actions -hover" style="top: -30px">
 			<?php 
 			if( $uploader != 'basic' ): 
 			?><a class="acf-icon -pencil dark" data-name="edit" href="#" title="<?php _e('Edit', 'acf'); ?>"></a><?php 
@@ -171,11 +194,11 @@ class acf_field_image_svg extends acf_field {
 	*  Create extra options for your field. This is rendered when editing a field.
 	*  The value of $field['name'] can be used (like bellow) to save extra data to the $field
 	*
-	*  @type	action
-	*  @since	3.6
-	*  @date	23/01/13
+	*  @type    action
+	*  @since   3.6
+	*  @date    23/01/13
 	*
-	*  @param	$field	- an array holding all the field's data
+	*  @param   $field  - an array holding all the field's data
 	*/
 	
 	function render_field_settings( $field ) {
@@ -203,107 +226,107 @@ class acf_field_image_svg extends acf_field {
 		
 		// return_format
 		acf_render_field_setting( $field, array(
-			'label'			=> __('Return Value','acf'),
-			'instructions'	=> __('Specify the returned value on front end','acf'),
-			'type'			=> 'radio',
-			'name'			=> 'return_format',
-			'layout'		=> 'horizontal',
-			'choices'		=> array(
-				'array'			=> __("Image Array",'acf'),
-				'url'			=> __("Image URL",'acf'),
-				'id'			=> __("Image ID",'acf')
+			'label'         => __('Return Value','acf'),
+			'instructions'  => __('Specify the returned value on front end','acf'),
+			'type'          => 'radio',
+			'name'          => 'return_format',
+			'layout'        => 'horizontal',
+			'choices'       => array(
+				'array'         => __("Image Array",'acf'),
+				'url'           => __("Image URL",'acf'),
+				'id'            => __("Image ID",'acf')
 			)
 		));
 		
 		
 		// preview_size
 		acf_render_field_setting( $field, array(
-			'label'			=> __('Preview Size','acf'),
-			'instructions'	=> __('Shown when entering data','acf'),
-			'type'			=> 'select',
-			'name'			=> 'preview_size',
-			'choices'		=> acf_get_image_sizes()
+			'label'         => __('Preview Size','acf'),
+			'instructions'  => __('Shown when entering data','acf'),
+			'type'          => 'select',
+			'name'          => 'preview_size',
+			'choices'       => acf_get_image_sizes()
 		));
 		
 		
 		// library
 		acf_render_field_setting( $field, array(
-			'label'			=> __('Library','acf'),
-			'instructions'	=> __('Limit the media library choice','acf'),
-			'type'			=> 'radio',
-			'name'			=> 'library',
-			'layout'		=> 'horizontal',
-			'choices' 		=> array(
-				'all'			=> __('All', 'acf'),
-				'uploadedTo'	=> __('Uploaded to post', 'acf')
+			'label'         => __('Library','acf'),
+			'instructions'  => __('Limit the media library choice','acf'),
+			'type'          => 'radio',
+			'name'          => 'library',
+			'layout'        => 'horizontal',
+			'choices'       => array(
+				'all'           => __('All', 'acf'),
+				'uploadedTo'    => __('Uploaded to post', 'acf')
 			)
 		));
 		
 		
 		// min
 		acf_render_field_setting( $field, array(
-			'label'			=> __('Minimum','acf'),
-			'instructions'	=> __('Restrict which images can be uploaded','acf'),
-			'type'			=> 'text',
-			'name'			=> 'min_width',
-			'prepend'		=> __('Width', 'acf'),
-			'append'		=> 'px',
+			'label'         => __('Minimum','acf'),
+			'instructions'  => __('Restrict which images can be uploaded','acf'),
+			'type'          => 'text',
+			'name'          => 'min_width',
+			'prepend'       => __('Width', 'acf'),
+			'append'        => 'px',
 		));
 		
 		acf_render_field_setting( $field, array(
-			'label'			=> '',
-			'type'			=> 'text',
-			'name'			=> 'min_height',
-			'prepend'		=> __('Height', 'acf'),
-			'append'		=> 'px',
-			'_append' 		=> 'min_width'
+			'label'         => '',
+			'type'          => 'text',
+			'name'          => 'min_height',
+			'prepend'       => __('Height', 'acf'),
+			'append'        => 'px',
+			'_append'       => 'min_width'
 		));
 		
 		acf_render_field_setting( $field, array(
-			'label'			=> '',
-			'type'			=> 'text',
-			'name'			=> 'min_size',
-			'prepend'		=> __('File size', 'acf'),
-			'append'		=> 'MB',
-			'_append' 		=> 'min_width'
-		));	
+			'label'         => '',
+			'type'          => 'text',
+			'name'          => 'min_size',
+			'prepend'       => __('File size', 'acf'),
+			'append'        => 'MB',
+			'_append'       => 'min_width'
+		)); 
 		
 		
 		// max
 		acf_render_field_setting( $field, array(
-			'label'			=> __('Maximum','acf'),
-			'instructions'	=> __('Restrict which images can be uploaded','acf'),
-			'type'			=> 'text',
-			'name'			=> 'max_width',
-			'prepend'		=> __('Width', 'acf'),
-			'append'		=> 'px',
+			'label'         => __('Maximum','acf'),
+			'instructions'  => __('Restrict which images can be uploaded','acf'),
+			'type'          => 'text',
+			'name'          => 'max_width',
+			'prepend'       => __('Width', 'acf'),
+			'append'        => 'px',
 		));
 		
 		acf_render_field_setting( $field, array(
-			'label'			=> '',
-			'type'			=> 'text',
-			'name'			=> 'max_height',
-			'prepend'		=> __('Height', 'acf'),
-			'append'		=> 'px',
-			'_append' 		=> 'max_width'
+			'label'         => '',
+			'type'          => 'text',
+			'name'          => 'max_height',
+			'prepend'       => __('Height', 'acf'),
+			'append'        => 'px',
+			'_append'       => 'max_width'
 		));
 		
 		acf_render_field_setting( $field, array(
-			'label'			=> '',
-			'type'			=> 'text',
-			'name'			=> 'max_size',
-			'prepend'		=> __('File size', 'acf'),
-			'append'		=> 'MB',
-			'_append' 		=> 'max_width'
-		));	
+			'label'         => '',
+			'type'          => 'text',
+			'name'          => 'max_size',
+			'prepend'       => __('File size', 'acf'),
+			'append'        => 'MB',
+			'_append'       => 'max_width'
+		)); 
 		
 		
 		// allowed type
 		acf_render_field_setting( $field, array(
-			'label'			=> __('Allowed file types','acf'),
-			'instructions'	=> __('Comma separated list. Leave blank for all types','acf'),
-			'type'			=> 'text',
-			'name'			=> 'mime_types',
+			'label'         => __('Allowed file types','acf'),
+			'instructions'  => __('Comma separated list. Leave blank for all types','acf'),
+			'type'          => 'text',
+			'name'          => 'mime_types',
 		));
 		
 	}
@@ -314,15 +337,15 @@ class acf_field_image_svg extends acf_field {
 	*
 	*  This filter is appied to the $value after it is loaded from the db and before it is returned to the template
 	*
-	*  @type	filter
-	*  @since	3.6
-	*  @date	23/01/13
+	*  @type    filter
+	*  @since   3.6
+	*  @date    23/01/13
 	*
-	*  @param	$value (mixed) the value which was loaded from the database
-	*  @param	$post_id (mixed) the $post_id from which the value was loaded
-	*  @param	$field (array) the field array holding all the field options
+	*  @param   $value (mixed) the value which was loaded from the database
+	*  @param   $post_id (mixed) the $post_id from which the value was loaded
+	*  @param   $field (array) the field array holding all the field options
 	*
-	*  @return	$value (mixed) the modified value
+	*  @return  $value (mixed) the modified value
 	*/
 	
 	function format_value( $value, $post_id, $field ) {
@@ -362,19 +385,19 @@ class acf_field_image_svg extends acf_field {
 	*
 	*  description
 	*
-	*  @type	function
-	*  @date	27/01/13
-	*  @since	3.6.0
+	*  @type    function
+	*  @date    27/01/13
+	*  @since   3.6.0
 	*
-	*  @param	$vars (array)
-	*  @return	$vars
+	*  @param   $vars (array)
+	*  @return  $vars
 	*/
 	
 	function get_media_item_args( $vars ) {
 	
-	    $vars['send'] = true;
-	    return($vars);
-	    
+		$vars['send'] = true;
+		return($vars);
+		
 	}
 		
 	
@@ -386,12 +409,12 @@ class acf_field_image_svg extends acf_field {
 	*  It would be a lot easier to add all the sizes to the 'image_size_names_choose' filter but 
 	*  then it will show up on the normal the_content editor
 	*
-	*  @type	function
-	*  @since:	3.5.7
-	*  @date	13/01/13
+	*  @type    function
+	*  @since:  3.5.7
+	*  @date    13/01/13
 	*
-	*  @param	{int}	$post_id
-	*  @return	{int}	$post_id
+	*  @param   {int}   $post_id
+	*  @return  {int}   $post_id
 	*/
 	
 	function wp_prepare_attachment_for_js( $response, $attachment, $meta ) {
@@ -442,15 +465,15 @@ class acf_field_image_svg extends acf_field {
 	*
 	*  This filter is appied to the $value before it is updated in the db
 	*
-	*  @type	filter
-	*  @since	3.6
-	*  @date	23/01/13
+	*  @type    filter
+	*  @since   3.6
+	*  @date    23/01/13
 	*
-	*  @param	$value - the value which will be saved in the database
-	*  @param	$post_id - the $post_id of which the value will be saved
-	*  @param	$field - the field array holding all the field options
+	*  @param   $value - the value which will be saved in the database
+	*  @param   $post_id - the $post_id of which the value will be saved
+	*  @param   $field - the field array holding all the field options
 	*
-	*  @return	$value - the modified value
+	*  @return  $value - the modified value
 	*/
 	
 	function update_value( $value, $post_id, $field ) {
@@ -466,12 +489,12 @@ class acf_field_image_svg extends acf_field {
 	*
 	*  This function will validate a basic file input
 	*
-	*  @type	function
-	*  @date	11/02/2014
-	*  @since	5.0.0
+	*  @type    function
+	*  @date    11/02/2014
+	*  @since   5.0.0
 	*
-	*  @param	$post_id (int)
-	*  @return	$post_id (int)
+	*  @param   $post_id (int)
+	*  @return  $post_id (int)
 	*/
 	
 	function validate_value( $valid, $value, $field, $input ){

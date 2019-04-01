@@ -210,7 +210,7 @@
 function create_html(tags,obj){
 	var elementHTML = '' ;
 	if ('media_loader' === obj.action)  { 
-	console.log(obj.action);
+		console.log(obj.action);
 
 		elementHTML = obj.img.parentNode;
 		elementHTML.setAttribute('style','transform: translate(0%,0%)')
@@ -226,7 +226,7 @@ function create_html(tags,obj){
 }
 
 function handler_child(obj) {
-console.log('+++');
+	console.log('+++');
 	$.ajax({
 		type: 'GET',
 		url: obj.url,
@@ -360,25 +360,37 @@ var callback = function (mutationsList)
 		}
 	}
 }
+
 var targetsNode = window.document;
-	// Options for the observer (which mutations to observe)
-	var config = { attributes: true, attributeOldValue: true, childList: true, subtree: true, 'attributeFilter': ['src'] };
-	// console.log(targetsNode+'--------');
-	// Callback function to execute when mutations are observed
-	// Create an observer instance linked to the callback function
-	var observer = new MutationObserver(callback);
-	//Start observing the target node for configured mutations
-	// for(var targetNode of targetsNode) {
-		if (targetsNode != null) {
-			observer.observe(targetsNode, config);
+
+var config = { attributes: true, attributeOldValue: true, childList: true, subtree: true, 'attributeFilter': ['src'] };
+
+var observer = new MutationObserver(callback);
+
+if (targetsNode != null) {
+	observer.observe(targetsNode, config);
+}
+(jQuery)(document).ready( function init_svg(){
+	console.log('initsvg');
+	var control_ext = document.querySelectorAll('[data-name="image"]');
+	for (var item of control_ext){
+		var src = item.getAttribute('src');
+		var ext = get_ext(src);
+		if (ext === 'svg'){
+			svg_work(item,src,ext);
 		}
 
+		// if (item.nextElementSibling.className !== 'buttons_svg'){
+		// 	console.log('create innerhtml');
+		// }
 	}
-	)(jQuery)
+})
+}
+)(jQuery)
 
-	window.onload = function (){
-		var html_temp = document.getElementById('tmpl-attachment');
-		var str_template = html_temp.text;
-		str_template =  str_template.replace("else if ( 'image' === data.type && data.sizes )", "else if ( 'image' === data.type )");
-		html_temp.innerHTML = str_template;
-	}
+window.onload = function (){
+	var html_temp = document.getElementById('tmpl-attachment');
+	var str_template = html_temp.text;
+	str_template =  str_template.replace("else if ( 'image' === data.type && data.sizes )", "else if ( 'image' === data.type )");
+	html_temp.innerHTML = str_template;
+}
