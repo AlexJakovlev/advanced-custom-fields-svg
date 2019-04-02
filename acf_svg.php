@@ -1,14 +1,12 @@
 <?php
 /*
 Plugin Name: ACF: +SVG(+sprite)
-Plugin URI: https://github.com/AlexJakovlev/
+Plugin URI: https://github.com/AlexJakovlev/advanced-custom-fields-svg
 Description: ACF add field image-SVG
 Version: 0.0.1
 Author: Alexey
 Author URI: https://github.com/AlexJakovlev/
 Copyright: Alexey Jakovlev
-Text Domain: none
-Domain Path: /none
 */
 if (!defined('ABSPATH')) {
 	/* Prevent Direct Access */
